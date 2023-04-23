@@ -1,38 +1,44 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class player : MonoBehaviour
+public class Player : MonoBehaviour
 {
 
-    private Vector3 PlayerMovementInput;
-    private Vector3 PlayerMouseInput;
-    private float xRot;
-    private bool onGround;
+    private Vector3 _playerMovementInput;
+    private Vector3 _playerMouseInput;
+    private float _xRot;
+    private bool _onGround;
+    private static Camera _mainCamera;
 
-    [SerializeField] private LayerMask FloorMask;
-    [SerializeField] private Transform PlayerCamera;
+    [SerializeField] private Transform playerCamera;
+    [SerializeField] private Camera mainCamera;
     [SerializeField] private Rigidbody rb;
     [Space]
-    [SerializeField] private float Speed;
-    [SerializeField] private float Sens;
-    [SerializeField] private float JumpForce;
+    [SerializeField] private float speed;
+    [SerializeField] private float sens;
+    [SerializeField] private float jumpForce;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        onGround = true;
+        _mainCamera = mainCamera;
+        
+        _onGround = true;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
     }
 
+    public static Camera GetCamera()
+    {
+        return _mainCamera;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        PlayerMovementInput = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
-        PlayerMouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        _playerMovementInput = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+        _playerMouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
         MovePlayer();
         MovePlayerCamera();
@@ -42,7 +48,7 @@ public class player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            onGround = true;
+            _onGround = true;
         }
 
     }
@@ -51,24 +57,24 @@ public class player : MonoBehaviour
 
     private void MovePlayer()
     {
-        Vector3 MoveVector = transform.TransformDirection(PlayerMovementInput) * Speed;
-        rb.velocity = new Vector3(MoveVector.x, rb.velocity.y, MoveVector.z);
+        Vector3 moveVector = transform.TransformDirection(_playerMovementInput) * speed;
+        rb.velocity = new Vector3(moveVector.x, rb.velocity.y, moveVector.z);
 
-        if (Input.GetKeyDown(KeyCode.Space) && onGround)
+        if (Input.GetKeyDown(KeyCode.Space) && _onGround)
         {
-            rb.AddForce(Vector3.up * JumpForce, ForceMode.Impulse);
-            onGround = false;
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            _onGround = false;
         }
     }
 
     private void MovePlayerCamera()
     {
-        xRot -= PlayerMouseInput.y * Sens;
+        _xRot -= _playerMouseInput.y * sens;
 
-        xRot = Mathf.Clamp(xRot, -90.0f, 90.0f);
+        _xRot = Mathf.Clamp(_xRot, -90.0f, 90.0f);
 
 
-        transform.Rotate(0.0f, PlayerMouseInput.x * Sens, 0.0f);
-        PlayerCamera.transform.localRotation = Quaternion.Euler(xRot, 0.0f, 0.0f);
+        transform.Rotate(0.0f, _playerMouseInput.x * sens, 0.0f);
+        playerCamera.transform.localRotation = Quaternion.Euler(_xRot, 0.0f, 0.0f);
     }
 }
